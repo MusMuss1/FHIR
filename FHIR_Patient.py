@@ -11,12 +11,18 @@ settings ={
 smart = client.FHIRClient(settings=settings)
 
 import fhirclient.models.patient as p
+import fhirclient.models.practitioner as pr
+import fhirclient.models.encounter as e
+import fhirclient.models.observation as o
 
 patient = p.Patient.read('17852', smart.server)
-pnamee = smart.human_name(patient.name[0])
+practitioner = pr.Practitioner.read('16889', smart.server)
+encounter = e.Encounter.read('17903', smart.server)
+observation = o.Observation.read('17858', smart.server)
 
 pbirthday = patient.birthDate.isostring
 
+pnamee = smart.human_name(patient.name[0])
 pname = patient.name[0].family + ","
 
 while i < len(patient.name[0].given):
