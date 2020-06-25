@@ -1,4 +1,13 @@
+"""
+FHIR_Client - MusMuss
+this script uses libraries
+https://github.com/pandas-dev/pandas
+https://github.com/numpy/numpy
+https://github.com/smart-on-fhir/client-py
+https://github.com/pyinstaller/pyinstaller
+"""
 from fhirclient import client
+from pandas import DataFrame
 
 i=0
 paddress = ""
@@ -23,6 +32,8 @@ encounter = e.Encounter.read('17903', smart.server)
 #Observation
 observation = o.Observation.read(Input, smart.server)
 operfomer = observation.performer[0].reference
+code = observation.code.coding[0].code
+codevalue = observation.code.coding[0].display
 
 print(operfomer + " found \n")
 operfomer = int("".join(filter(str.isdigit, operfomer)))
@@ -58,4 +69,33 @@ while i < len(patient.telecom):
 
 print("Name, Vorname: " + pname + " "  + "\n" + "Geburtsdatum: " + pbirthday + "\n" + "Geschlecht: " + pgender + "\n" + "Adresse: " + paddress + "\n" + ptelecom)
 
-print(pnamee)
+print("Other Observations Found")
+
+oID =[]
+oDate =[]
+oValue =[]
+oName =[]
+
+search = o.Observation.where(struct={'performer': str(operfomer),'code': str(code)})
+observations = search.perform_resources(smart.server)
+for obser in observations:
+    oID.append(obser.id)
+    oDate.append(obser.effectiveDateTime.isostring)
+    oValue.append(str(obser.valueQuantity.value)+obser.valueQuantity.unit)
+    oName.append(pname)
+
+
+print(oValue)
+
+df = DataFrame({   "Name": pname,
+                   "Observation ID": oID,
+                   "Date": oDate,
+                   str(codevalue): oValue})
+
+print(df)
+html = df.to_html()
+f = open("file.html", "w")
+f.write(html)
+f.close()
+
+input("press key to close")
