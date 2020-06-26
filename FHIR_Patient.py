@@ -25,6 +25,7 @@ import fhirclient.models.patient as p
 import fhirclient.models.practitioner as pr
 import fhirclient.models.encounter as e
 import fhirclient.models.observation as o
+import fhirclient.models.medicationrequest as m
 
 practitioner = pr.Practitioner.read('16889', smart.server)
 encounter = e.Encounter.read('17903', smart.server)
@@ -85,17 +86,47 @@ for obser in observations:
     oName.append(pname)
 
 
-print(oValue)
+dfObser = DataFrame({   "Observation ID": oID,
+                        "Name": oName,
+                        "Date": oDate,
+                        str(codevalue): oValue})
 
-df = DataFrame({   "Name": pname,
-                   "Observation ID": oID,
-                   "Date": oDate,
-                   str(codevalue): oValue})
+print(dfObser)
+print("\n")
 
-print(df)
-html = df.to_html()
-f = open("file.html", "w")
+eID =[]
+eStart =[]
+eEnd =[]
+eValue =[]
+eDoc =[]
+eSub =[]
+
+search = e.Encounter.where(struct={'subject': str(operfomer)})
+encounters = search.perform_resources(smart.server)
+for enc in encounters:
+    eID.append(enc.id)
+    eStart.append(enc.period.start.isostring)
+    eEnd.append(enc.period.end.isostring)
+    eDoc.append(enc.participant[0].individual.display)
+    eSub.append(pname)
+    #pat = int("".join(filter(str.isdigit, enc.subject.reference)))
+    #patient = p.Patient.read(pat, smart.server)
+    #eSub.append(str(smart.human_name(patient.name[0])))
+
+
+dfEnc = DataFrame({   "Encounter ID": eID,
+                      "Start": eStart,
+                      "End": eEnd,
+                      "Doc": eDoc,
+                      "Patient": eSub})
+
+print(dfEnc)
+print("\n")
+html = dfObser.to_html() + dfEnc.to_html()
+f = open("file2.html", "w")
 f.write(html)
 f.close()
 
+
 input("press key to close")
+#17862
