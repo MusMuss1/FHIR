@@ -74,12 +74,16 @@ def askhtml(kuerzel,head):
 Input = input("insert MIME18PM_* \n")
 pID = []
 pName =[]
+patients =[]
 
 search = p.Patient.where(struct={'name': Input})
 patients = search.perform_resources(smart.server)
 for pat in patients:
     pID.append(pat.id)
-    pName.append(pat.name[0].given[0] + pat.name[0].family)
+    try:
+        pName.append(pat.name[0].given[0] + " "+ pat.name[0].family)
+    except:
+        pName.append("NONE " + pat.name[0].family)
 
 
 dfPatients = DataFrame({   "Patient ID": pID,
