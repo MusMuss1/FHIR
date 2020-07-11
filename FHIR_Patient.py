@@ -71,7 +71,7 @@ def askhtml(kuerzel,head):
 
 
 #list all patients #MIME18PM_GMSZ
-Input = input("insert MIME18PM_* \n")
+Input = input("insert Patient Name E.g. 'MIME18PM' \n")
 pID = []
 pName =[]
 patients =[]
@@ -216,7 +216,7 @@ oDate = []
 oValue = []
 oName = []
 
-Input =input("Enter Arzt ID !\n")
+Input =input("Enter Practitioner ID !\n")
 
 search = o.Observation.where(struct={'performer': Input,'subject': patID, 'status': 'final'})
 observations = search.perform_resources(smart.server)
@@ -226,10 +226,15 @@ for obser in observations:
     oDate.append(obser.effectiveDateTime.isostring)
     oCodeValue.append(obser.code.coding[0].display)
     oCode.append(obser.code.coding[0].code)
-    try:
+    try: #Wert+Einheit
         oValue.append(str(obser.valueQuantity.value) + " " + obser.valueQuantity.unit)
-    except:
-        oValue.append(obser.valueString)
+    except:#Versuche Blutdruck
+        try:
+            oValue.append("(" + obser.component[0].code.coding[0].display + "/" + obser.component[1].code.coding[
+                0].display + ") " + str(obser.component[0].valueQuantity.value) + "/" + str(
+                obser.component[1].valueQuantity.value) + " " + obser.component[0].valueQuantity.unit)
+        except:#Versuche Schlafverhalten
+            oValue.append(obser.valueString)
     oName.append(pname)
 
 dfObser = DataFrame({"Observation ID": oID,
@@ -240,10 +245,10 @@ dfObser = DataFrame({"Observation ID": oID,
                      "Code Value": oCodeValue,
                      "Messungen": oValue})
 
-print(dfEnc)
+print(dfObser)
 print("\n")
 html = dfObser.to_html()
-head = "Liste aller Encounter von "+ patID
+head = "Liste aller Encounter Observationen von "+ patID
 kuerzel = "Encounter_"+patID
 askhtml(kuerzel,head)
 
@@ -269,7 +274,6 @@ def observa(Input):
         oCode.append(obser.code.coding[0].code)
         try:
             oValue.append(str(obser.valueQuantity.value) + " " + obser.valueQuantity.unit)
-            oValue.append(str(obser.valueQuantity.valuevalue))
         except:
             oValue.append(obser.valueString)
         oName.append(pname)
@@ -288,9 +292,9 @@ def observa(Input):
     return html
 
 while True:
-    query = input('Look for speci Observations ?\n')
-    Fl = query[0].lower()
-    if query == '' or not Fl in ['y', 'n']:
+    quest = input('Look for speci Observations ?\n')
+    Fl = quest[0].lower()
+    if quest == '' or not Fl in ['y', 'n']:
         print('Please answer with yes or no!')
     else:
         break
@@ -298,6 +302,7 @@ if Fl == 'y':
     Input = input("Enter Observation Code\n")
     kuerzel = "Observation_" + Input + "_" + patID
     html = observa(Input)
+    head = "Liste aller Observationen vom Typ " + Input
     askhtml(kuerzel,head)
     input("press key to close...")
 if Fl == 'n':
