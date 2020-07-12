@@ -69,33 +69,40 @@ def askhtml(kuerzel,head):
     if Fl == 'n':
         print("")
 
-
-#list all patients #MIME18PM_GMSZ
-Input = input("insert Patient Name E.g. 'MIME18PM' \n")
-pID = []
-pName =[]
-patients =[]
-
-search = p.Patient.where(struct={'name': Input})
-patients = search.perform_resources(smart.server)
-for pat in patients:
-    pID.append(pat.id)
+patients=[]
+while not patients:
     try:
-        pName.append(pat.name[0].given[0] + " "+ pat.name[0].family)
+        # list all patients #MIME18PM_GMSZ
+        Input = input("insert Patient Name E.g. 'MIME18PM' \n")
+        pID = []
+        pName = []
+        patients = []
+
+        search = p.Patient.where(struct={'name': Input})
+        patients = search.perform_resources(smart.server)
+        for pat in patients:
+            pID.append(pat.id)
+            try:
+                pName.append(pat.name[0].given[0] + " " + pat.name[0].family)
+            except:
+                pName.append("NONE " + pat.name[0].family)
+
+        dfPatients = DataFrame({"Patient ID": pID,
+                                "Name": pName})
+
+        print(dfPatients)
+        print("\n")
+
+        html = dfPatients.to_html()
+        head = "Liste aller " + Input + " Patienten"
+        kuerzel = Input
+        if patients:
+            askhtml(kuerzel, head)
+        else:
+            print(FileNotFoundError)
     except:
-        pName.append("NONE " + pat.name[0].family)
+        print(FileNotFoundError)
 
-
-dfPatients = DataFrame({   "Patient ID": pID,
-                           "Name": pName})
-
-print(dfPatients)
-print("\n")
-
-html = dfPatients.to_html()
-head = "Liste aller "+Input+" Patienten"
-kuerzel = Input
-askhtml(kuerzel,head)
 
 valid=False
 while not valid:
