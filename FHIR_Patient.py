@@ -75,7 +75,7 @@ while start:
     while not patients:
         try:
             # list all patients #MIME18PM_GMSZ
-            Input = input("insert Patient Name E.g. 'MIME18PM' \n")
+            Input = input("Insert Patient Name E.g. 'MIME18PM' ! Insert 'skip' to look for PatientID !\n")
             pID = []
             pName = []
             patients = []
@@ -102,6 +102,8 @@ while start:
                 askhtml(kuerzel, head)
             else:
                 print(FileNotFoundError)
+            if Input == "skip":
+                patients.append("1")
         except:
             print(FileNotFoundError)
 
@@ -239,7 +241,7 @@ while start:
             oValue = []
             oName = []
 
-            Input = input("Enter Practitioner ID !\n")
+            Input = input("Enter Practitioner ID ! Insert 'skip' to skip. \n")
 
             search = o.Observation.where(struct={'performer': Input, 'subject': patID, 'status': 'final'})
             observations = search.perform_resources(smart.server)
@@ -276,6 +278,8 @@ while start:
             kuerzel = "Encounter_" + patID
             if observations:
                 askhtml(kuerzel, head)
+            if Input == "skip":
+                observations.append("1")
         except:
             print(FileNotFoundError)
 
