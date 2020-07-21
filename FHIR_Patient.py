@@ -275,7 +275,7 @@ while start:
             print("\n")
             html = dfObser.to_html()
             head = "Liste aller Encounter Observationen von " + patID
-            kuerzel = "Encounter_Observations" + patID
+            kuerzel = "Encounter_Observations_" + patID
             if observations:
                 askhtml(kuerzel, head)
             if Input == "skip":
